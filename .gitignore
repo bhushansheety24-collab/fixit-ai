@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+.next/
+.next-e2e/
+out/
+build/
+dist/
+
+# Environment
+.env
+.env*.local
+.env.production
+
+# Prisma / database
+*.db
+*.db-journal
+
+# Local uploads fallback (image binaries never belong in git)
+public/uploads/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Testing
+coverage/
+playwright-report/
+test-results/
+.vitest/
+
+# Editors / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Misc
+*.tsbuildinfo
+next-env.d.ts
+.vercel

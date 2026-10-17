@@ -1,0 +1,19 @@
+# Keep the build context small and never send local artifacts into the image.
+node_modules
+.next
+.next-e2e
+.next-verify
+.git
+.gitignore
+test-results
+playwright-report
+coverage
+*.log
+.env
+.env.*
+!.env.example
+docker-compose.yml
+Dockerfile
+.dockerignore
+README.md
+tests

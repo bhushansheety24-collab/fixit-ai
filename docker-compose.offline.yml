@@ -1,0 +1,67 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: fixit-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: fixit
+      POSTGRES_PASSWORD: fixit_dev_password
+      POSTGRES_DB: fixit_ai
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fixit -d fixit_ai"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fixit-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # App
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      # Database — points to the docker-compose service name
+      DATABASE_URL: postgresql://fixit:fixit_dev_password@db:5432/fixit_ai?schema=public
+      # Auth
+      BETTER_AUTH_SECRET: dev-only-insecure-secret-change-me-0000000000000
+      BETTER_AUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      # Mock AI by default; override only if you have an AI key
+      # AI_API_KEY: 
+      # Image storage: leave unset to use local ./public/uploads
+      # REDIS_URL:
+      # Admin seeding (only takes effect if RUN_DB_SEED=1 on first start)
+      SEED_ADMIN_EMAIL: admin@fixit.local
+      SEED_ADMIN_PASSWORD: ChangeMe123!
+      SEED_ADMIN_NAME: FixIt Admin
+      RUN_DB_SEED: "0"
+      RUN_DB_MIGRATE: "0"
+    ports:
+      - "3000:3000"
+    volumes:
+      - uploads:/app/public/uploads
+    command: >
+      sh -c "
+        if [ \"$$RUN_DB_MIGRATE\" = \"1\" ]; then
+          npx prisma migrate deploy;
+        fi;
+        if [ \"$$RUN_DB_SEED\" = \"1\" ]; then
+          npx tsx prisma/seed.ts || true;
+        fi;
+        node_modules/.bin/next start -p 3000 -H 0.0.0.0
+      "
+
+volumes:
+  pgdata:
+  uploads:

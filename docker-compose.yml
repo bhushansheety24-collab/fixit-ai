@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: fixit-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: fixit
+      POSTGRES_PASSWORD: fixit_dev_password
+      POSTGRES_DB: fixit_ai
+    ports:
+      - "5432:5432"
+    volumes:
+      - fixit-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fixit -d fixit_ai"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  fixit-pgdata:
